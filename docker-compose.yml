@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # API Backend
+  api:
+    build: ./src
+    container_name: jinoca_api
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://jinoca:jinoca_pass@db:5432/jinoca_db
+      - REDIS_HOST=redis
+      - SMTP_HOST=postfix
+      - APP_DOMAIN=jinoca.com
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - db
+      - redis
+      - postfix
+    networks:
+      - jinoca_net
+
+  # Banco de Dados (Preparação)
+  db:
+    image: postgres:15-alpine
+    container_name: jinoca_db
+    restart: always
+    environment:
+      POSTGRES_USER: jinoca
+      POSTGRES_PASSWORD: jinoca_pass
+      POSTGRES_DB: jinoca_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - jinoca_net
+
+  # Fila de Mensagens (Redis)
+  redis:
+    image: redis:7-alpine
+    container_name: jinoca_redis
+    restart: always
+    networks:
+      - jinoca_net
+
+  # Servidor SMTP Próprio (Postfix)
+  postfix:
+    build: ./postfix
+    container_name: jinoca_smtp
+    restart: always
+    ports:
+      - "25:25"
+    environment:
+      - MAILDOMAIN=jinoca.com
+    networks:
+      - jinoca_net
+
+networks:
+  jinoca_net:
+
+volumes:
+  pgdata:
