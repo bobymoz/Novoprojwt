@@ -1,0 +1,16 @@
+# Configurações Básicas
+myhostname = mail.jinoca.com
+mydomain = jinoca.com
+myorigin = $mydomain
+inet_interfaces = all
+inet_protocols = ipv4
+
+# Redes confiáveis (Permite que o Docker envie e-mail sem senha internamente)
+mynetworks = 127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+
+# Configurações de Relay e Segurança
+smtpd_relay_restrictions = permit_mynetworks, reject_unauth_destination
+smtpd_banner = $myhostname ESMTP JinocaMailer
+
+# Logs
+maillog_file = /var/log/maillog
